@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Board, BoardStatus } from './board.model';
 import { v1 as uuid } from 'uuid';
 import { createBoardDto } from './dto/create-board.dto';
@@ -31,11 +31,17 @@ export class BoardsService {
     }
 
     getBoardById(id: string): Board {
-        return this.boards.find((board) => board.id === id);
+        const found = this.boards.find((board) => board.id === id);
+
+        if(!found) {
+            throw new NotFoundException(`Can't find Board with id ${id}`);
+        }
+        return found;
     }
 
     deleteBoard(id: string): void {
-        this.boards = this.boards.filter((board) => board.id !== id);
+        const found = this.getBoardById(id);
+        this.boards = this.boards.filter((board) => board.id !== found.id);
     }
     // return값을 void: 아무것도 return 하지않음
     // id가 같지않은것만 남겨두고 같은 것만 삭제
