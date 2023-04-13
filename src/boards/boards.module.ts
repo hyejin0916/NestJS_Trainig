@@ -5,14 +5,6 @@ import { BoardRepository } from './board.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Board } from './board.entity';
 
-// @Module({
-//   imports: [
-//     TypeOrmModule.forFeature([BoardRepository])
-//   ],
-//   controllers: [BoardsController],
-//   providers: [BoardsService]
-// })
-// export class BoardsModule {}
 @Module({
   imports: [
     TypeOrmModule.forFeature([Board])

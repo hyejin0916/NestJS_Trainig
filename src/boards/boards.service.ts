@@ -15,63 +15,44 @@ export class BoardsService {
         private boardRepository: BoardRepository,
     ) {}
 
+    // async, await: 요청 처리 시간이 다끝나고 결과값을 받을때, 처리가 완료된 후에 결과값을 받음
+    async getAllBoard(): Promise<Board[]> {
+        return this.boardRepository.find();
+    }
+
     createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
         return this.boardRepository.createBoard(createBoardDto);
     }
 
-    // getAllBoards(): Board[] {
-    //     return this.boards;
-    // }
+    async getBoardById(id: number): Promise<Board> {
+        const found = await this.boardRepository.findOne({ where: { id } });
 
-    // createBoard(createBoardDto: createBoardDto) {
-    //     // const title = createBoardDto.title;
-    //     const { title, description } = createBoardDto;
-    //     const board: Board = {
-    //         id: uuid(),
-    //         title,
-    //         //title: title,
-    //         description,
-    //         //description: description,
-    //         // 모델 필드명과 선언명이 같다면 명 하나만 적어주면 됨
-    //         status: BoardStatus.PUBLIC
-    //         // 게시글 공개 여부: default 공개
-    //     }
-    //     this.boards.push(board);
-    //     return board;
-    //     // return JSON.stringify(board);
-    // }
-// ----------------------------------------------------------------------------------
-    // async, await: 요청 처리 시간이 다끝나고 결과값을 받을때, 처리가 완료된 후에 결과값을 받음
-    // async getBoardByID(id: number): Promise <Board> {
-    //     const found = await this.boardRepository.findOne(id);
+        if (!found) {
+            throw new NotFoundException(`Can't find Board with id ${id}`)
+        }
+        return found;
+    }
 
-    //     if(!found) {
-    //         throw new NotFoundException(`Can't find Board with id ${id}`)
-    //     }
-        
-    //     return found
-    // }
-// ------------------------------------------------------------------------------------
-    // getBoardById(id: string): Board {
-    //     const found = this.boards.find((board) => board.id === id);
+    async deleteBoard(id: number): Promise<void> {
+        const result = await this.boardRepository.delete(id);
 
-    //     if(!found) {
-    //         throw new NotFoundException(`Can't find Board with id ${id}`);
-    //     }
-    //     return found;
-    // }
+        if(result.affected === 0) {
+            throw new NotFoundException(`Can't find Board with id ${id}`)
+        }
 
-    // deleteBoard(id: string): void {
-    //     const found = this.getBoardById(id);
-    //     this.boards = this.boards.filter((board) => board.id !== found.id);
-    // }
-    // // return값을 void: 아무것도 return 하지않음
-    // // id가 같지않은것만 남겨두고 같은 것만 삭제
+        console.log('result', result);
+        // 실행결과: DeleteResult { raw: [], affected: 1 }
+        // affected: 영향을 받은 데이터가 1개
+    }
+    // return값을 void: 아무것도 return 하지않음
+    // id가 같지않은것만 남겨두고 같은 것만 삭제
 
-    // updateBoardStatus(id: string, status: BoardStatus): Board {
-    //     const board = this.getBoardById(id);
-    //     board.status = status;
+    async updateBoardStatus(id: number, status: BoardStatus): Promise<Board> {
+        const board = await this.getBoardById(id);
 
-    //     return board;
-    // }
+        board.status = status;
+        await this.boardRepository.save(board);
+
+        return board;
+    }
 }
