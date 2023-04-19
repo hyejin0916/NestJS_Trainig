@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Logger, Param, ParseIntPipe, Patch, Post, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { BoardsService } from './boards.service';
 import { BoardStatus } from './board-status.enum';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -11,6 +11,7 @@ import { User } from 'src/auth/user.entity';
 @Controller('boards')
 @UseGuards(AuthGuard())
 export class BoardsController {
+    private logger = new Logger('BoardController');
     constructor(private boardsService: BoardsService) {}
 
     // 유저의 모든 게시글을 가져오는 핸들러
@@ -18,6 +19,7 @@ export class BoardsController {
     getAllBoard(
         @GetUser() user: User,
     ): Promise<Board[]> {
+        this.logger.verbose(`User "${user.username}" trying to get all boards`);
         return this.boardsService.getAllBoard(user);
     }
 
@@ -28,6 +30,7 @@ export class BoardsController {
     @GetUser() user:User): Promise<Board> {
         // console.log(createBoardDto)
         // { title: 'Board 5', description: 'Board 5' }
+        this.logger.verbose(`User "${user.username}" creating a new board. Payload: ${JSON.stringify(createBoardDto)}`)
         return this.boardsService.createBoard(createBoardDto, user);
     }
     // 특정 게시글 가져오기
