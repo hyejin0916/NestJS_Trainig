@@ -13,7 +13,7 @@ import { User } from 'src/auth/user.entity';
 export class BoardsController {
     constructor(private boardsService: BoardsService) {}
 
-    // 모든 게시글을 가져오는 핸들러
+    // 유저의 모든 게시글을 가져오는 핸들러
     @Get('/')
     getAllBoard(
         @GetUser() user: User,
@@ -40,8 +40,9 @@ export class BoardsController {
 
     // 게시글 삭제
     @Delete('/:id')
-    deleteBoard(@Param('id', ParseIntPipe) id: number): Promise<void> {
-        return this.boardsService.deleteBoard(id);
+    deleteBoard(@Param('id', ParseIntPipe) id: number,
+    @GetUser() user: User): Promise<void> {
+        return this.boardsService.deleteBoard(id, user);
     }
 
     // 게시글 상태 업데이트
