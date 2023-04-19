@@ -5,6 +5,7 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BoardRepository } from './board.repository';
 import { Board } from './board.entity';
+import { User } from 'src/auth/user.entity';
 //uuid의 버전중 v1을 사용할 것이며, uuid라는 단어로 사용
 
 @Injectable()
@@ -16,12 +17,19 @@ export class BoardsService {
     ) {}
 
     // async, await: 요청 처리 시간이 다끝나고 결과값을 받을때, 처리가 완료된 후에 결과값을 받음
-    async getAllBoard(): Promise<Board[]> {
-        return this.boardRepository.find();
+    async getAllBoard(
+        user: User,
+    ): Promise<Board[]> {
+        const query = this.boardRepository.createQueryBuilder('board');
+
+        query.where('board.userId = :userId', { userId: user.id})
+
+        const boards = await query.getMany();
+        return boards;
     }
 
-    createBoard(createBoardDto: CreateBoardDto): Promise<Board> {
-        return this.boardRepository.createBoard(createBoardDto);
+    createBoard(createBoardDto: CreateBoardDto, user: User): Promise<Board> {
+        return this.boardRepository.createBoard(createBoardDto, user);
     }
 
     async getBoardById(id: number): Promise<Board> {
